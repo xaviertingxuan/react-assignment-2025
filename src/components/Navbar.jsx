@@ -37,17 +37,19 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link href="/" className={`nav-link ${location === '/products' ? 'active' : ''}`}>
+              <Link href="/products" className={`nav-link ${location === '/products' ? 'active' : ''}`}>
                 Products
               </Link>
             </li>
             <li className="nav-item">
-              <Link href="/" className={`nav-link ${location === '/register' ? 'active' : ''}`}>
+              <Link href="/register" className={`nav-link ${location === '/register' ? 'active' : ''}`}>
                 Register
               </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">About</a>
+            <Link href="/about-us" className={`nav-link ${location === '/about-us' ? 'active' : ''}`}>
+                About
+              </Link>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">Contact</a>
