@@ -1,5 +1,18 @@
 import React from 'react';
 import { Formik, Field, Form } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+  name: Yup.string().required('Name is required'),
+  email: Yup.string().email('Invalid email address').required('Email is required'),
+  password: Yup.string().min(8, 'Password must be at least 8 characters long').required('Password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), null], 'Passwords must match')
+    .required('Confirm password is required'),
+  salutation: Yup.string().required('Salutation is required'),
+  marketingPreferences: Yup.array().min(1, 'At least one marketing preference is required'),
+  country: Yup.string().required('Country is required')
+});
 
 function RegisterPage() {
   const initialValues = {
@@ -12,16 +25,17 @@ function RegisterPage() {
     country: ''
   };
 
-  const handleSubmit = (values, formikHelpers) => {  
+  const handleSubmit = (values, formikHelpers) => {
     console.log('Form values:', values);
     formikHelpers.setSubmitting(false);
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container mt-5" >
       <h1>Register</h1>
       <Formik
         initialValues={initialValues}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
         {(formik) => (
@@ -69,6 +83,16 @@ function RegisterPage() {
             <div className="mb-3">
               <label className="form-label">Salutation</label>
               <div>
+                <div className="form-check form-check-inline">
+                  <Field
+                    className="form-check-input"
+                    type="radio"
+                    name="salutation"
+                    id="dr"
+                    value="Dr"
+                  />
+                  <label className="form-check-label" htmlFor="mr">Mr</label>
+                </div>
                 <div className="form-check form-check-inline">
                   <Field
                     className="form-check-input"
@@ -156,7 +180,7 @@ function RegisterPage() {
           </Form>
         )}
       </Formik>
-    </div>
+    </div >
   );
 }
 
