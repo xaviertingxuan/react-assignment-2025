@@ -1,20 +1,13 @@
 import React from 'react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().min(8, 'Password must be at least 8 characters long').required('Password is required'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Confirm password is required'),
-  salutation: Yup.string().required('Salutation is required'),
-  marketingPreferences: Yup.array().min(1, 'At least one marketing preference is required'),
-  country: Yup.string().required('Country is required')
-});
+// import axios from 'axios';
+// import { useLocation } from 'wouter';
 
 function RegisterPage() {
+
+  // const [, setLocation] = useLocation();
+
   const initialValues = {
     name: '',
     email: '',
@@ -25,18 +18,47 @@ function RegisterPage() {
     country: ''
   };
 
-  const handleSubmit = (values, formikHelpers) => {
+  const validationSchema = Yup.object({
+    name: Yup.string()
+      .required('Name is required'),
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Passwords must match')
+      .required('Confirm Password is required'),
+    salutation: Yup.string()
+      .required('Salutation is required'),
+    country: Yup.string()
+      .required('Country is required')
+  });
+
+  const handleSubmit = async (values, formikHelpers) => {
+    // try {
+    //   const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, values);
+    //   console.log('Registration successful:', response.data);
+
+    // } catch (error) {
+    //   console.error('Registration failed:', error.response?.data || error.message);
+    // } finally {
+    //   formikHelpers.setSubmitting(false);
+    //   setLocation('/');
+    // }
+
     console.log('Form values:', values);
     formikHelpers.setSubmitting(false);
   };
 
   return (
-    <div className="container mt-5" >
+    <div className="container mt-5">
       <h1>Register</h1>
       <Formik
         initialValues={initialValues}
-        validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        validationSchema={validationSchema}
       >
         {(formik) => (
           <Form>
@@ -48,6 +70,7 @@ function RegisterPage() {
                 id="name"
                 name="name"
               />
+              {formik.touched.name && formik.errors.name ? <div className="text-danger">{formik.errors.name}</div> : null}
             </div>
 
             <div className="mb-3">
@@ -58,6 +81,7 @@ function RegisterPage() {
                 id="email"
                 name="email"
               />
+              {formik.touched.email && formik.errors.email ? <div className="text-danger">{formik.errors.email}</div> : null}
             </div>
 
             <div className="mb-3">
@@ -68,6 +92,7 @@ function RegisterPage() {
                 id="password"
                 name="password"
               />
+              {formik.touched.password && formik.errors.password ? <div className="text-danger">{formik.errors.password}</div> : null}
             </div>
 
             <div className="mb-3">
@@ -78,6 +103,7 @@ function RegisterPage() {
                 id="confirmPassword"
                 name="confirmPassword"
               />
+              {formik.touched.confirmPassword && formik.errors.confirmPassword ? <div className="text-danger">{formik.errors.confirmPassword}</div> : null}
             </div>
 
             <div className="mb-3">
@@ -91,7 +117,7 @@ function RegisterPage() {
                     id="dr"
                     value="Dr"
                   />
-                  <label className="form-check-label" htmlFor="mr">Mr</label>
+                  <label className="form-check-label" htmlFor="dr">Dr</label>
                 </div>
                 <div className="form-check form-check-inline">
                   <Field
@@ -124,34 +150,38 @@ function RegisterPage() {
                   <label className="form-check-label" htmlFor="mrs">Mrs</label>
                 </div>
               </div>
+              {formik.touched.salutation && formik.errors.salutation ? <div className="text-danger">{formik.errors.salutation}</div> : null}
             </div>
 
             <div className="mb-3">
               <label className="form-label">Marketing Preferences</label>
-              <div className="form-check">
-                <Field
-                  className="form-check-input"
-                  type="checkbox"
-                  id="emailMarketing"
-                  name="marketingPreferences"
-                  value="email"
-                />
-                <label className="form-check-label" htmlFor="emailMarketing">
-                  Email Marketing
-                </label>
+              <div role="group" aria-labelledby="checkbox-group">
+                <div className="form-check">
+                  <Field
+                    className="form-check-input"
+                    type="checkbox"
+                    id="emailMarketing"
+                    name="marketingPreferences"
+                    value="email"
+                  />
+                  <label className="form-check-label" htmlFor="emailMarketing">
+                    Email Marketing
+                  </label>
+                </div>
+                <div className="form-check">
+                  <Field
+                    className="form-check-input"
+                    type="checkbox"
+                    id="smsMarketing"
+                    name="marketingPreferences"
+                    value="sms"
+                  />
+                  <label className="form-check-label" htmlFor="smsMarketing">
+                    SMS Marketing
+                  </label>
+                </div>
               </div>
-              <div className="form-check">
-                <Field
-                  className="form-check-input"
-                  type="checkbox"
-                  id="smsMarketing"
-                  name="marketingPreferences"
-                  value="sms"
-                />
-                <label className="form-check-label" htmlFor="smsMarketing">
-                  SMS Marketing
-                </label>
-              </div>
+              {formik.touched.marketingPreferences && formik.errors.marketingPreferences ? <div className="text-danger">{formik.errors.marketingPreferences}</div> : null}
             </div>
 
             <div className="mb-3">
@@ -168,6 +198,7 @@ function RegisterPage() {
                 <option value="in">Indonesia</option>
                 <option value="th">Thailand</option>
               </Field>
+              {formik.touched.country && formik.errors.country ? <div className="text-danger">{formik.errors.country}</div> : null}
             </div>
 
             <button
@@ -180,7 +211,7 @@ function RegisterPage() {
           </Form>
         )}
       </Formik>
-    </div >
+    </div>
   );
 }
 
