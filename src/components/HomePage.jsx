@@ -1,43 +1,54 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ProductCard from './ProductCard'
+import axios from 'axios'
 
 
 const HomePage = () => {
+
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await axios.get('featured.json');
+        setFeaturedProducts(response.data);
+        setError(null); // Clear any errors
+      } catch (error) {
+        console.error('Error fetching featured products: ', error);
+      }finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeaturedProducts();
+  }, []);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+
+    // const fetchFeaturedProducts = async () => {
+    //   const response = await axios.get('featured.json');
+
+    //   setFeaturedProducts(response.data);
+    //   console.log(response.data);
+    // }
+
   return (
     <div>
-
+      <h1>Featured Products</h1>
       <div className="row">
-        <div className="col-md-3 mb-4">
+        {featuredProducts.map(p => (
+        <div key={p.id} className="col-md-3 mb-4">
           <ProductCard
-            imageUrl="https://picsum.photos/id/20/300/200"
-            productName="Product 1"
-            price="19.99"
+            imageUrl={p.image}
+            productName={p.Name}
+            price= {p.price}
           />
         </div>
-
-        <div className="col-md-3 mb-4">
-          <ProductCard
-            imageUrl="https://picsum.photos/id/1/300/200"
-            productName="Product 2"
-            price="29.99"
-          />
-        </div>
-
-        <div className="col-md-3 mb-4">
-          <ProductCard
-            imageUrl="https://picsum.photos/id/26/300/200"
-            productName="Product 3"
-            price="39.99"
-          />
-        </div>
-
-        <div className="col-md-3 mb-4">
-          <ProductCard
-            imageUrl="https://picsum.photos/id/96/300/200"
-            productName="Product 4"
-            price="49.99"
-          />
-        </div>
+        ))}
+       
       </div>
     </div>
   )
