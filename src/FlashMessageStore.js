@@ -27,7 +27,7 @@ export const useFlashMessage = () => {
     }
 
     const clearMessage = () => {
-        setFlashMessage({ message: '', type: 'info' });
+        setFlashMessage({ message:'', type: 'info' });
     };
 
     const getMessage = () => {
@@ -41,5 +41,3 @@ export const useFlashMessage = () => {
         clearMessage
    };
 }
-
-

@@ -8,7 +8,7 @@ import Navbar from './components/Navbar';
 import Header from './components/Header';
 import AboutUs from './components/AboutUs';
 import { useEffect } from 'react';
-import { useFlashMessage } from './components/FlashMessageStore';
+import { useFlashMessage } from './FlashMessageStore';
 
 
 function App() {
@@ -16,19 +16,28 @@ function App() {
   const { getMessage, clearMessage } = useFlashMessage();
   const flashMessage = getMessage();
 
+  //when the component mounts, set a timer to clear the message after 3 seconds
+
   useEffect(() => {
 
     const timer = setTimeout(() => {
       clearMessage();
     }
-      , 3000);
-      return () => clearTimeout(timer);
-  }, [flashMessage]);
-
+    , 9000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }
+  , [flashMessage, clearMessage]);
 
   return (
     <>
       <Navbar />
+      {flashMessage.message && (
+        <div className={`alert alert-${flashMessage.type} text-center m-2`}>
+          {flashMessage.message}
+        </div>
+      )}
       <Header />
       <Switch>
         <Route path="/" component={HomePage} />

@@ -35,7 +35,7 @@ const ProductPage = () => {
           <div key = { p.id } className = "col-md-4 mb-4" >
           <ProductCard
             imageUrl={p.image}
-            productName={p.Name}
+            productName={p.name}
             price={p.price.toFixed(2)}
           />
           </div>
