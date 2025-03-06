@@ -1,13 +1,13 @@
 import React from 'react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
-import { useFlashMessage } from './FlashMessageStore';
+import { useFlashMessage } from '../FlashMessageStore';
 // import axios from 'axios';
-// import { useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 
 function RegisterPage() {
 
-  // const [, setLocation] = useLocation();
+  const [, setLocation] = useLocation();
 
   const initialValues = {
     name: '',
@@ -27,7 +27,7 @@ function RegisterPage() {
       .required('Email is required'),
     password: Yup.string()
       .required('Password is required')
-      .min(8, 'Password must be at least 8 characters'),
+      .min(4, 'Password must be at least 4 characters'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Passwords must match')
       .required('Confirm Password is required'),
@@ -48,10 +48,11 @@ function RegisterPage() {
     //   console.error('Registration failed:', error.response?.data || error.message);
     // } finally {
     //   formikHelpers.setSubmitting(false);
-    //   setLocation('/');
+    //   
     // }
 
     console.log('Form values:', values);
+    setLocation('/');
     formikHelpers.setSubmitting(false);
     showMessage('Registration successful', 'success');
   };
