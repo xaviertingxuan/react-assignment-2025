@@ -44,7 +44,7 @@ const HomePage = () => {
           <ProductCard
             imageUrl={p.image}
             productName={p.Name}
-            price= {p.price}
+            price= {p.price.toFixed(2)}
           />
         </div>
         ))}

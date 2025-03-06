@@ -7,9 +7,23 @@ import RegisterPage from './components/RegisterPage'
 import Navbar from './components/Navbar';
 import Header from './components/Header';
 import AboutUs from './components/AboutUs';
+import { useEffect } from 'react';
+import { useFlashMessage } from './components/FlashMessageStore';
 
 
 function App() {
+
+  const { getMessage, clearMessage } = useFlashMessage();
+  const flashMessage = getMessage();
+
+  useEffect(() => {
+
+    const timer = setTimeout(() => {
+      clearMessage();
+    }
+      , 3000);
+      return () => clearTimeout(timer);
+  }, [flashMessage]);
 
 
   return (
