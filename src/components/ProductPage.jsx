@@ -1,6 +1,9 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import ProductCard from './ProductCard';
+import { useFlashMessage } from '../FlashMessageStore';
+import { useLocation } from 'wouter';
+import { useCart } from './CartStore';
 
 
 const ProductPage = () => {
@@ -8,6 +11,22 @@ const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToCart} = useCart();
+  const [, setLocation] = useLocation();
+  const { showMessage} = useFlashMessage();
+
+  const handleAddToCart = (product) => {
+      addToCart({
+          id: Math.floor(Math.random()* 9999 + 1),
+          product_id: product.id,
+          productName: product.name,
+          imageUrl: product.image,
+          price: product.price,
+          description: product.description
+      });
+      showMessage("Product added to cart", "success");
+      setLocation("/cart");
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,6 +56,7 @@ const ProductPage = () => {
             imageUrl={p.image}
             productName={p.name}
             price={p.price.toFixed(2)}
+            onAddToCart={() => {handleAddToCart(p)}}
           />
           </div>
         ))}
