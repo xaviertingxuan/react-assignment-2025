@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFlashMessage } from '../FlashMessageStore';
-// import axios from 'axios';
+import axios from 'axios';
 import { useLocation } from 'wouter';
 
 function RegisterPage() {
@@ -51,10 +51,20 @@ function RegisterPage() {
     //   
     // }
 
-    console.log('Form values:', values);
-    setLocation('/');
-    formikHelpers.setSubmitting(false);
-    showMessage('Registration successful', 'success');
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, values);
+      
+      console.log('Registration successful:', response.data)
+  
+      console.log('Form values:', values);
+      setLocation('/');
+      formikHelpers.setSubmitting(false);
+      showMessage('Registration successful', 'success');
+    } catch (e) {
+      console.log(e);
+      showMessage('Registration failed', 'error');
+      formikHelpers.setSubmitting(false);
+    }
   };
 
   return (

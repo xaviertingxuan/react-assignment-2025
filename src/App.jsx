@@ -9,6 +9,8 @@ import Header from './components/Header';
 import AboutUs from './components/AboutUs';
 import { useEffect } from 'react';
 import { useFlashMessage } from './FlashMessageStore';
+import LoginPage from './components/LoginPage';
+import UserProfile from './components/UserProfile';
 
 
 function App() {
@@ -44,6 +46,8 @@ function App() {
         <Route path="/products" component={ProductPage} />
         <Route path="/register" component={RegisterPage} />
         <Route path="/about-us" component={AboutUs} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/profile" component={UserProfile} />
       </Switch>
       <Footer />
     </>
