@@ -7,16 +7,48 @@ import * as Yup from 'yup';
 import { useLocation } from 'wouter';
 
 export default function UserProfile() {
-
     const [, setLocation] = useLocation();
-    const {showMessage} = useFlashMessage();
-
-    // we want when the state updates, the form should update as well
-    const [initialValues, setInitialValues] = useState({});
-
-    // all hook functions must be called before other kind of code
+    const { showMessage } = useFlashMessage();
     const { getJwt } = useJwt();
+    const [initialValues, setInitialValues] = useState({});
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    useEffect(() => {
+        const token = getJwt();
+        if (!token) {
+            showMessage('Please login to view your profile', 'error');
+            setLocation('/login');
+            return;
+        }
+
+        setIsAuthenticated(true);
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(
+                    `${import.meta.env.VITE_API_URL}/api/users/me`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                setInitialValues(response.data.user);
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    setIsAuthenticated(false);
+                    showMessage('Session expired. Please login again', 'error');
+                    setLocation('/login');
+                }
+            }
+        };
+
+        fetchData();
+    }, [getJwt, setLocation, showMessage]);
+
+    // Return null if not authenticated
+    if (!isAuthenticated) {
+        return null;
+    }
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Required'),
@@ -24,31 +56,6 @@ export default function UserProfile() {
         salutation: Yup.string(),
         country: Yup.string(),
     });
-
-    // when the component is rendered for the first time,
-    // load the currently logged in user
-    // - get the token from the userStore
-    // - consume the /api/users/me endpoint with the token to get the current
-    //  user info
-    useEffect(() => {
-
-
-        const fetchData = async () => {
-            const token = getJwt();
-            const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/api/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-            );
-            setInitialValues(response.data.user)
-        }
-
-
-        fetchData();
-
-    }, [getJwt])
 
     const handleSubmit = async (values, actions) => {
         try {
@@ -92,7 +99,7 @@ export default function UserProfile() {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
-            enableReinitialize // Allows form to reinitialize with fetched profile data
+            enableReinitialize
         >
             {function (formik) {
                 return (
@@ -151,7 +158,7 @@ export default function UserProfile() {
                 );
             }}
         </Formik>
-        <button class="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
+        <button className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
     </div>
     )
 }

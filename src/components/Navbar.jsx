@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'wouter';
+import { useJwt } from '../UserStore';
 
 const Navbar = () => {
-
   const [isNavbarShowing, setNavbarShowing] = useState(false)
-
   const [location] = useLocation();
+  const { getJwt } = useJwt();
 
   useEffect(() => {
     const syncNavbarState = () => {
@@ -17,6 +17,9 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', syncNavbarState);
   }, []);
 
+  const isLoggedIn = () => {
+    return !!getJwt();
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -59,16 +62,19 @@ const Navbar = () => {
                 Cart
               </Link>
             </li>
-            <li className="nav-item">
-              <Link href="/login" className={`nav-link ${location === '/login' ? 'active' : ''}`}>
-                Login
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/profile" className={`nav-link ${location === '/profile' ? 'active' : ''}`}>
-                User
-              </Link>
-            </li>
+            {!isLoggedIn() ? (
+              <li className="nav-item">
+                <Link href="/login" className={`nav-link ${location === '/login' ? 'active' : ''}`}>
+                  Login
+                </Link>
+              </li>
+            ) : (
+              <li className="nav-item">
+                <Link href="/profile" className={`nav-link ${location === '/profile' ? 'active' : ''}`}>
+                  Profile
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
