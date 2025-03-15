@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'wouter';
 import { useJwt } from '../UserStore';
+import { useFlashMessage } from '../FlashMessageStore';
 
 const Navbar = () => {
   const [isNavbarShowing, setNavbarShowing] = useState(false)
-  const [location] = useLocation();
-  const { getJwt } = useJwt();
+  const [location, setLocation] = useLocation();
+  const { getJwt, clearJwt } = useJwt();
+  const { showMessage } = useFlashMessage();
 
   useEffect(() => {
     const syncNavbarState = () => {
@@ -19,6 +21,12 @@ const Navbar = () => {
 
   const isLoggedIn = () => {
     return !!getJwt();
+  };
+
+  const handleLogout = () => {
+    clearJwt();
+    showMessage('Logged out successfully', 'success');
+    setLocation('/login');
   };
 
   return (
@@ -69,11 +77,21 @@ const Navbar = () => {
                 </Link>
               </li>
             ) : (
-              <li className="nav-item">
-                <Link href="/profile" className={`nav-link ${location === '/profile' ? 'active' : ''}`}>
-                  Profile
-                </Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link href="/profile" className={`nav-link ${location === '/profile' ? 'active' : ''}`}>
+                    Profile
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <button 
+                    onClick={handleLogout}
+                    className="nav-link btn btn-link"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>

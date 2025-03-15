@@ -158,6 +158,7 @@ export default function UserProfile() {
                 );
             }}
         </Formik>
+        <br />
         <button className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
     </div>
     )
