@@ -1,5 +1,9 @@
 import { atom, useAtom } from 'jotai'
 import { Immutable } from "seamless-immutable"
+import axios from 'axios';
+// import { useEffect, useRef } from 'react';
+import { useJwt } from "../UserStore"
+
 
 const initialCart = [
     {
@@ -14,10 +18,34 @@ const initialCart = [
 ];
 
 export const cartAtom = atom(initialCart);
+export const cartLoadingAtom = atom(false);
 
 export const useCart = () => {
     const [cart, setCart] = useAtom(cartAtom);
+    const [, setIsLoading] = useAtom(cartLoadingAtom)
+    const { getJwt } = useJwt();
 
+    const fetchCart = async () => {
+        const jwt = getJwt();
+        setIsLoading(true);
+
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/api/cart` ,
+                {
+                    headers: {
+                        Authorization: `Bearer ${jwt}` ,
+                    }
+                }
+            );
+            setCart(Immutable(response.data));  
+        } catch (error) {
+            console.error("Error fetching cart", error)
+        } finally {
+            setIsLoading(false);
+        }
+
+    }
     const getCartTotal = () => {
         return cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
     };
@@ -47,5 +75,6 @@ export const useCart = () => {
         cart,
         getCartTotal,
         addToCart,
+        fetchCart,
     };
 };

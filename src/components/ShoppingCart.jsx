@@ -1,9 +1,14 @@
-import React from 'react'
-import { useCart } from '../CartStore'
+import React, { useEffect } from 'react'
+import { useCart } from './CartStore'
 
 const ShoppingCart = () => {
 
-    const { cart, getCartTotal } = useCart();
+    const { cart, fetchCart, getCartTotal } = useCart();
+
+    useEffect(() => {
+        fetchCart();
+    }, []);
+
 
     return (
         <div className="container mt-4">
