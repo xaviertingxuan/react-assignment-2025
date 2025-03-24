@@ -4,18 +4,51 @@ import { useJwt } from "../UserStore";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useFlashMessage } from '../FlashMessageStore';
 import * as Yup from 'yup';
+import { useLocation } from 'wouter';
 
 export default function UserProfile() {
-
-
-    const {showMessage} = useFlashMessage();
-
-    // we want when the state updates, the form should update as well
-    const [initialValues, setInitialValues] = useState({});
-
-    // all hook functions must be called before other kind of code
+    const [, setLocation] = useLocation();
+    const { showMessage } = useFlashMessage();
     const { getJwt } = useJwt();
+    const [initialValues, setInitialValues] = useState({});
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    useEffect(() => {
+        const token = getJwt();
+        if (!token) {
+            showMessage('Please login to view your profile', 'error');
+            setLocation('/login');
+            return;
+        }
+
+        setIsAuthenticated(true);
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(
+                    `${import.meta.env.VITE_API_URL}/api/users/me`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                setInitialValues(response.data.user);
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    setIsAuthenticated(false);
+                    showMessage('Session expired. Please login again', 'error');
+                    setLocation('/login');
+                }
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Return null if not authenticated
+    if (!isAuthenticated) {
+        return null;
+    }
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Required'),
@@ -24,51 +57,35 @@ export default function UserProfile() {
         country: Yup.string(),
     });
 
-    // when the component is rendered for the first time,
-    // load the currently logged in user
-    // - get the token from the userStore
-    // - consume the /api/users/me endpoint with the token to get the current
-    //  user info
-    useEffect(() => {
-
-
-        const fetchData = async () => {
-            const token = getJwt();
-            const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/api/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-            );
-            setInitialValues(response.data.user)
-        }
-
-
-        fetchData();
-
-    }, [getJwt])
-
     const handleSubmit = async (values, actions) => {
         try {
             const token = getJwt();
             if (!token) {
-                showMessage('You must be logged in to update your profile.', 'error');
+                showMessage('Please login to update your profile', 'error');
                 actions.setSubmitting(false);
                 return;
             }
 
-            await axios.put(import.meta.env.VITE_API_URL + '/api/users/me', values, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/api/users/me`,
+                values,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
 
-            showMessage('Profile updated successfully!', 'success');
-            actions.setSubmitting(false);
+            if (response.data && response.data.user) {
+                // setInitialValues(response.data.user);
+                showMessage('Profile updated successfully', 'success');
+            }
         } catch (error) {
-            console.error('Error updating profile:', error);
-            actions.setErrors({ submit: error.response?.data?.message || 'An error occurred' });
+            showMessage(error.response?.data?.message || 'Failed to update profile', 'error');
+            console.error('Profile update error:', error);
+            actions.setErrors({ submit: error.response?.data?.message || 'Update failed' });
+        } finally {
             actions.setSubmitting(false);
         }
     };
@@ -81,7 +98,7 @@ export default function UserProfile() {
             }
         });
         showMessage("Account has been deleted", "danger");
-        window.location.href = "/";
+        setLocation("/");
     }
 
 
@@ -91,7 +108,7 @@ export default function UserProfile() {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
-            enableReinitialize // Allows form to reinitialize with fetched profile data
+            enableReinitialize
         >
             {function (formik) {
                 return (
@@ -151,7 +168,7 @@ export default function UserProfile() {
             }}
         </Formik>
         <br />
-        <button class="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
+        <button className="btn btn-danger" onClick={handleDeleteAccount}>Delete Account</button>
     </div>
     )
 }
