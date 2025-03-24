@@ -28,6 +28,8 @@ const ProductPage = () => {
       setLocation("/cart");
   }
 
+  
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
